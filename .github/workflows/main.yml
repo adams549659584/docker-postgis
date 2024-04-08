@@ -16,7 +16,7 @@ jobs:
       matrix:
         postgres: [12, 13, 14, 15, 16]
         postgis: ['3.4']
-        variant: [default, alpine]
+        variant: [default]
         include:
           - postgres: 15
             postgis: master
@@ -63,11 +63,11 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
-        file: ./${{ env.VERSION }}-${{ env.VARIANT }}/Dockerfile
+        file: ./${{ env.VERSION }}/Dockerfile
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
-            docker.io/${{ github.repository }}:${{ env.VERSION }}-${{ env.VARIANT }}
-        cache-from: type=registry,ref=${{ github.repository }}:cache-${{ env.VERSION }}-${{ env.VARIANT }}
-        cache-to: type=registry,ref=${{ github.repository }}:cache-${{ env.VERSION }}-${{ env.VARIANT }},mode=max
+            docker.io/${{ github.repository }}:${{ env.VERSION }}
+        cache-from: type=registry,ref=${{ github.repository }}:cache-${{ env.VERSION }}
+        cache-to: type=registry,ref=${{ github.repository }}:cache-${{ env.VERSION }},mode=max
 
