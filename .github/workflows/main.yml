@@ -31,8 +31,8 @@ jobs:
     env:
       VERSION: ${{ matrix.postgres }}-${{ matrix.postgis }}
       VARIANT: ${{ matrix.variant }}
-      DOCKERFILE_PATH: ${{ matrix.variant == 'default' && 'Dockerfile' || (matrix.variant + '/Dockerfile') }}
-      DOCKER_BASE_IMAGE: ${{ matrix.variant == 'default' && '' || ('-' + matrix.variant) }}
+      DOCKERFILE_PATH: ${{ matrix.variant == 'default' && 'Dockerfile' || '${{ matrix.variant }}/Dockerfile' }}
+      DOCKER_BASE_IMAGE: ${{ matrix.variant == 'default' && '' || '-${{matrix.variant}}' }}
 
     steps:
     - name: Checkout source
