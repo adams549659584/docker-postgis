@@ -69,5 +69,5 @@ jobs:
         tags: |
             docker.io/${{ github.repository }}:${{ env.VERSION }}-${{ env.VARIANT }}
         cache-from: type=registry,ref=${{ github.repository }}:cache-${{ env.VERSION }}-${{ env.VARIANT }}
-        cache-to: type=registry,ref=${{ github.repository }}::cache-${{ env.VERSION }}-${{ env.VARIANT }},mode=max
+        cache-to: type=registry,ref=${{ github.repository }}:cache-${{ env.VERSION }}-${{ env.VARIANT }},mode=max
 
