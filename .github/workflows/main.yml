@@ -60,6 +60,6 @@ jobs:
         push: true
         tags: |
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/postgis:${{ env.DOCKER_TAG }}
-        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/postgis:cache-${{ env.DOCKER_TAG }}
-        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/postgis:cache-${{ env.DOCKER_TAG }},mode=max
+        # cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/postgis:${{ env.DOCKER_TAG }}-cache
+        # cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/postgis:${{ env.DOCKER_TAG }}-cache,mode=max
 
