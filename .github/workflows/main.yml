@@ -51,15 +51,15 @@ jobs:
     - name: Build and Push docker image for ${{ env.VERSION }} ${{ env.VARIANT }} to dockerhub
       uses: docker/build-push-action@v4
       env:
-        DOCKERFILE_PATH: ${{ matrix.variant == 'default' && 'Dockerfile' || format('{0}/Dockerfile', matrix.variant) }}
-        DOCKER_BASE_IMAGE: ${{ matrix.variant == 'default' && '' || format('-{0}', matrix.variant) }}
+        DOCKERFILE_PATH: ${{ matrix.variant == 'default' && format('./{0}/Dockerfile', env.VERSION) || format('./{0}/{1}/Dockerfile', env.VERSION, matrix.variant) }}
+        DOCKER_TAG: ${{ matrix.variant == 'default' && env.VERSION || format('{0}-{1}', env.VERSION,matrix.variant) }}
       with:
         context: .
-        file: ./${{ env.VERSION }}/${{ env.DOCKERFILE_PATH }}
+        file: ${{ env.DOCKERFILE_PATH }}
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/postgis:${{ env.VERSION }}${{ env.DOCKER_BASE_IMAGE }}
-        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/postgis:cache-${{ env.VERSION }}${{ env.DOCKER_BASE_IMAGE }}
-        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/postgis:cache-${{ env.VERSION }}${{ env.DOCKER_BASE_IMAGE }},mode=max
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/postgis:${{ env.DOCKER_TAG }}
+        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/postgis:cache-${{ env.DOCKER_TAG }}
+        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/postgis:cache-${{ env.DOCKER_TAG }},mode=max
 
