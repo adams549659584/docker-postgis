@@ -31,8 +31,6 @@ jobs:
     env:
       VERSION: ${{ matrix.postgres }}-${{ matrix.postgis }}
       VARIANT: ${{ matrix.variant }}
-      DOCKERFILE_PATH: ${{ matrix.variant == 'default' && 'Dockerfile' || format('{0}/Dockerfile', matrix.variant) }}
-      DOCKER_BASE_IMAGE: ${{ matrix.variant == 'default' && '' || format('-{0}', matrix.variant) }}
 
     steps:
     - name: Checkout source
@@ -52,6 +50,9 @@ jobs:
 
     - name: Build and Push docker image for ${{ env.VERSION }} ${{ env.VARIANT }} to dockerhub
       uses: docker/build-push-action@v4
+      env:
+        DOCKERFILE_PATH: ${{ matrix.variant == 'default' && 'Dockerfile' || format('{0}/Dockerfile', matrix.variant) }}
+        DOCKER_BASE_IMAGE: ${{ matrix.variant == 'default' && '' || format('-{0}', matrix.variant) }}
       with:
         context: .
         file: ./${{ env.VERSION }}/${{ env.DOCKERFILE_PATH }}
