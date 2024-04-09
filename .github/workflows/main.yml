@@ -16,7 +16,7 @@ jobs:
       matrix:
         postgres: [16]
         postgis: ['3.4']
-        variant: [default, alpine]
+        variant: [default]
         include:
           - postgres: 16
             postgis: master
