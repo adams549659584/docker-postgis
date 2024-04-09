@@ -52,7 +52,7 @@ jobs:
         DOCKER_TAG: ${{ matrix.variant == 'default' && env.VERSION || format('{0}-{1}', env.VERSION,matrix.variant) }}
       with:
         context: ${{ env.DOCKERFILE_PATH }}
-        file: Dockerfile
+        file: ${{ env.DOCKERFILE_PATH }}/Dockerfile
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
