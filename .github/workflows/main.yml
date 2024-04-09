@@ -48,11 +48,11 @@ jobs:
     - name: Build and Push docker image for ${{ env.VERSION }} ${{ env.VARIANT }} to dockerhub
       uses: docker/build-push-action@v5
       env:
-        DOCKERFILE_PATH: ${{ matrix.variant == 'default' && format('./{0}/Dockerfile', env.VERSION) || format('./{0}/{1}/Dockerfile', env.VERSION, matrix.variant) }}
+        DOCKERFILE_PATH: ${{ matrix.variant == 'default' && format('./{0}', env.VERSION) || format('./{0}/{1}', env.VERSION, matrix.variant) }}
         DOCKER_TAG: ${{ matrix.variant == 'default' && env.VERSION || format('{0}-{1}', env.VERSION,matrix.variant) }}
       with:
-        context: .
-        file: ${{ env.DOCKERFILE_PATH }}
+        context: ${{ env.DOCKERFILE_PATH }}
+        file: Dockerfile
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
