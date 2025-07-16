@@ -6,11 +6,11 @@
 # This is a multi-stage Dockerfile, requiring a minimum Docker version of 17.05.
 
 ARG DOCKER_CMAKE_BUILD_TYPE=Release
-ARG CGAL_GIT_BRANCH=5.6.x-branch
-FROM postgres:15-bullseye as builder
+ARG CGAL_GIT_BRANCH=master
+FROM postgres:17-bullseye as builder
 
 LABEL maintainer="PostGIS Project - https://postgis.net" \
-      org.opencontainers.image.description="PostGIS - master  spatial database extension with PostgreSQL 15 bullseye" \
+      org.opencontainers.image.description="PostGIS - master  spatial database extension with PostgreSQL 17 bullseye" \
       org.opencontainers.image.source="https://github.com/postgis/docker-postgis"
 
 WORKDIR /
@@ -84,18 +84,16 @@ ARG DOCKER_CMAKE_BUILD_TYPE
 ENV DOCKER_CMAKE_BUILD_TYPE=${DOCKER_CMAKE_BUILD_TYPE}
 
 # cgal & sfcgal
-# By utilizing the latest commit of the CGAL 5.x.x-branch and implementing a header-only build for SFCGAL,
-# one can benefit from the latest CGAL patches while avoiding compatibility issues.
 ARG CGAL_GIT_BRANCH
 ENV CGAL_GIT_BRANCH=${CGAL_GIT_BRANCH}
-ENV CGAL5X_GIT_HASH 188e51bad36ffc30e49dbabda29620b71a84664c
-ENV SFCGAL_GIT_HASH 61f3b08ade49493b56c6bafa98c7c1f84addbc10
+ENV CGAL_GIT_HASH 0435766dcff95262a217c7256498abd63189b6ae
+ENV SFCGAL_GIT_HASH 2a5ef192adb2c7963584e83b968177103918592e
 RUN set -ex \
     && mkdir -p /usr/src \
     && cd /usr/src \
     && git clone --branch ${CGAL_GIT_BRANCH} https://github.com/CGAL/cgal  \
     && cd cgal \
-    && git checkout ${CGAL5X_GIT_HASH} \
+    && git checkout ${CGAL_GIT_HASH} \
     && git log -1 > /_pgis_cgal_last_commit.txt \
     && cd /usr/src \
     && git clone https://gitlab.com/SFCGAL/SFCGAL.git \
@@ -122,7 +120,7 @@ RUN set -ex \
     && rm -fr /usr/src/cgal
 
 # proj
-ENV PROJ_GIT_HASH 356496f7b60ee0235189dd51d99aac700fbd2bdc
+ENV PROJ_GIT_HASH 36ff1542f8633dca7c7d3d1648e846859dade7ed
 RUN set -ex \
     && cd /usr/src \
     && git clone https://github.com/OSGeo/PROJ.git \
@@ -152,7 +150,7 @@ RUN set -ex \
     && rm -fr /usr/src/PROJ
 
 # geos
-ENV GEOS_GIT_HASH a8d2ed0aba46f88f9b8987526e68eea6565d16ae
+ENV GEOS_GIT_HASH 790f14e27d734b8ed253c1238de5f3155299afcc
 RUN set -ex \
     && cd /usr/src \
     && git clone https://github.com/libgeos/geos.git \
@@ -168,7 +166,7 @@ RUN set -ex \
     && rm -fr /usr/src/geos
 
 # gdal
-ENV GDAL_GIT_HASH d7aed6e0b03f949ba40684f868c63a08d89177b1
+ENV GDAL_GIT_HASH 7b06d23399ec78f0a66f33bd528ab802af8ae7f3
 RUN set -ex \
     && cd /usr/src \
     && git clone https://github.com/OSGeo/gdal.git \
@@ -252,7 +250,7 @@ RUN set -ex \
 # -------------------------------------------
 # STAGE  final
 # -------------------------------------------
-FROM postgres:15-bullseye
+FROM postgres:17-bullseye
 
 ARG DOCKER_CMAKE_BUILD_TYPE
 ENV DOCKER_CMAKE_BUILD_TYPE=${DOCKER_CMAKE_BUILD_TYPE}
@@ -301,11 +299,11 @@ COPY --from=builder /usr/local /usr/local
 
 ARG CGAL_GIT_BRANCH
 ENV CGAL_GIT_BRANCH=${CGAL_GIT_BRANCH}
-ENV CGAL5X_GIT_HASH 188e51bad36ffc30e49dbabda29620b71a84664c
-ENV SFCGAL_GIT_HASH 61f3b08ade49493b56c6bafa98c7c1f84addbc10
-ENV PROJ_GIT_HASH 356496f7b60ee0235189dd51d99aac700fbd2bdc
-ENV GEOS_GIT_HASH a8d2ed0aba46f88f9b8987526e68eea6565d16ae
-ENV GDAL_GIT_HASH d7aed6e0b03f949ba40684f868c63a08d89177b1
+ENV CGAL_GIT_HASH 0435766dcff95262a217c7256498abd63189b6ae
+ENV SFCGAL_GIT_HASH 2a5ef192adb2c7963584e83b968177103918592e
+ENV PROJ_GIT_HASH 36ff1542f8633dca7c7d3d1648e846859dade7ed
+ENV GEOS_GIT_HASH 790f14e27d734b8ed253c1238de5f3155299afcc
+ENV GDAL_GIT_HASH 7b06d23399ec78f0a66f33bd528ab802af8ae7f3
 
 # Minimal command line test ( fail fast )
 RUN set -ex \
@@ -324,7 +322,7 @@ RUN set -ex \
             || echo "ogr2ogr missing PostgreSQL driver" && exit 1
 
 # install postgis
-ENV POSTGIS_GIT_HASH 8ed84517a9b86c86724504d1b6a0f0c1ccd86cf6
+ENV POSTGIS_GIT_HASH 60b0e880d24ffcdf2d17ab22bc8109549f69fd16
 
 RUN set -ex \
     && apt-get update \
@@ -384,7 +382,7 @@ RUN set -ex \
     && su postgres -c 'pg_ctl -D /tempdb -c -l /tmp/logfile -o '-F' start ' \
     && ldconfig \
     && cd regress \
-    && make -j$(nproc) check RUNTESTFLAGS=--extension PGUSER=postgres \
+    && make -j$(nproc) check RUNTESTFLAGS="--extension --verbose" PGUSER=postgres \
     \
     && su postgres -c 'psql    -c "CREATE EXTENSION IF NOT EXISTS postgis;"' \
     && su postgres -c 'psql    -c "CREATE EXTENSION IF NOT EXISTS postgis_raster;"' \
