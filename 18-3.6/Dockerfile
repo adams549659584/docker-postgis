@@ -20,7 +20,11 @@ RUN apt-get update \
            \
            postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR=$POSTGIS_VERSION \
            postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR-scripts \
+           pgbackrest \
       && rm -rf /var/lib/apt/lists/*
+
+# 创建备份目录并赋权
+RUN mkdir -p /var/lib/pgbackrest && chown postgres:postgres /var/lib/pgbackrest      
 
 RUN mkdir -p /docker-entrypoint-initdb.d
 COPY ./initdb-postgis.sh /docker-entrypoint-initdb.d/10_postgis.sh
