@@ -14,23 +14,59 @@ jobs:
   make-docker-images:
     strategy:
       matrix:
-        postgres: [16, 17]
+        runner-platform: ['ubuntu-24.04', 'ubuntu-24.04-arm']
+        postgres: [14, 15, 16, 17]
         postgis: ['3.5']
         variant: [default]
         include:
-          - postgres: 16
+          - postgres: 18
             postgis: master
             variant: default
+            runner-platform: 'ubuntu-24.04'
           - postgres: 17
             postgis: master
             variant: default
+            runner-platform: 'ubuntu-24.04'
+          - postgres: 18
+            postgis: master
+            variant: default
+            runner-platform: 'ubuntu-24.04-arm'
+          - postgres: 17
+            postgis: master
+            variant: default
+            runner-platform: 'ubuntu-24.04-arm'
+          - postgres: 17
+            postgis: '3.6'
+            variant: alpine
+            runner-platform: 'ubuntu-24.04'
+          - postgres: 17
+            postgis: '3.6'
+            variant: alpine
+            runner-platform: 'ubuntu-24.04-arm'
+          - postgres: 18
+            postgis: '3.6'
+            variant: alpine
+            runner-platform: 'ubuntu-24.04'
+          - postgres: 18
+            postgis: '3.6'
+            variant: alpine
+            runner-platform: 'ubuntu-24.04-arm'
+          - postgres: 18
+            postgis: '3.6'
+            variant: default
+            runner-platform: 'ubuntu-24.04'
+          - postgres: 18
+            postgis: '3.6'
+            variant: default
+            runner-platform: 'ubuntu-24.04-arm'
 
-    name: Build docker image for ${{ matrix.postgres }}-${{ matrix.postgis }} variant ${{ matrix.variant }}
-    runs-on: ubuntu-20.04
+    name: ${{ matrix.postgres }}-${{ matrix.postgis }}-${{ matrix.variant }} ${{ matrix.runner-platform }} - Build Docker image
+    runs-on: ${{ matrix.runner-platform }}
     continue-on-error: ${{ matrix.postgis == 'master' }}
     env:
       VERSION: ${{ matrix.postgres }}-${{ matrix.postgis }}
       VARIANT: ${{ matrix.variant }}
+      DOCKER_APT_PKG_VER: '5:29.2.1-1~ubuntu.24.04~noble'
 
     steps:
     - name: Checkout source

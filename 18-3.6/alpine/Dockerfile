@@ -1,15 +1,17 @@
 #
 # NOTE: THIS DOCKERFILE IS GENERATED VIA "make update"! PLEASE DO NOT EDIT IT DIRECTLY.
 #
-ARG BASE_IMAGE=postgres:13-alpine3.22
+ARG BASE_IMAGE=postgres:18-alpine3.23
 FROM ${BASE_IMAGE}
 
+ARG NPROC=
+
 LABEL maintainer="PostGIS Project - https://postgis.net" \
-      org.opencontainers.image.description="PostGIS 3.5.3 spatial database extension with PostgreSQL 13 Alpine" \
+      org.opencontainers.image.description="PostGIS 3.6.3 spatial database extension with PostgreSQL 18 Alpine" \
       org.opencontainers.image.source="https://github.com/postgis/docker-postgis"
 
-ENV POSTGIS_VERSION 3.5.3
-ENV POSTGIS_SHA256 44222ed2b8f742ffc1ceb429b09ebb484c7880f9ba27bf7b6b197346cdd25437
+ENV POSTGIS_VERSION=3.6.3
+ENV POSTGIS_SHA256=3ab7714ff1d0f7944855d21546d24e5f7ecf6b931c72472a2bfa30e188a33093
 
 RUN set -eux \
     && apk add --no-cache --virtual .fetch-deps \
@@ -62,7 +64,7 @@ RUN set -eux \
     && ./autogen.sh \
     && ./configure \
         --enable-lto \
-    && make -j$(nproc) \
+    && make -j${NPROC:-$(nproc)} \
     && make install \
     \
 # This section is for refreshing the proj data for the regression tests.
@@ -78,7 +80,7 @@ RUN set -eux \
     && su postgres -c 'pg_ctl -D /tempdb init' \
     && su postgres -c 'pg_ctl -D /tempdb -c -l /tmp/logfile -o '-F' start ' \
     && cd regress \
-    && make -j$(nproc) check RUNTESTFLAGS="--extension --verbose" PGUSER=postgres \
+    && make -j${NPROC:-$(nproc)} check RUNTESTFLAGS="--extension --verbose" PGUSER=postgres \
     \
     && su postgres -c 'psql    -c "CREATE EXTENSION IF NOT EXISTS postgis;"' \
     && su postgres -c 'psql    -c "CREATE EXTENSION IF NOT EXISTS postgis_raster;"' \

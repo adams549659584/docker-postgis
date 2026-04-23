@@ -56,7 +56,7 @@ REPO_NAME  ?= postgis
 IMAGE_NAME ?= postgis
 
 DOCKER=docker
-DOCKERHUB_DESC_IMG=peterevans/dockerhub-description:latest
+DOCKERHUB_DESC_IMG=peterevans/dockerhub-description:4
 
 GIT=git
 OFFIMG_LOCAL_CLONE=$(HOME)/official-images
@@ -68,7 +68,7 @@ build: $(foreach version,$(VERSIONS),build-$(version))
 all: update build test
 
 update:
-	$(DOCKER) run --rm -v $$(pwd):/work -w /work buildpack-deps ./update.sh
+	$(DOCKER) run --rm -v $$(pwd):/work -w /work docker.io/buildpack-deps ./update.sh
 
 
 ### RULES FOR BUILDING ###
